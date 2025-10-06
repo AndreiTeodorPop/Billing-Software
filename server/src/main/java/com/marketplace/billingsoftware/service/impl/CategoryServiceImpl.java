@@ -12,15 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.marketplace.billingsoftware.util.ImageUtil.addImageFile;
 import static com.marketplace.billingsoftware.util.ImageUtil.deleteImageFile;
 
 @Service
@@ -38,11 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse add(CategoryRequest request, MultipartFile file) throws IOException {
         CategoryEntity newCategory = convertToEntity(request);
 
-        String filename = file.getOriginalFilename();
-        Path imagePath = Paths.get(uploadPath + File.separator + filename);
-        Files.createDirectories(imagePath.getParent());
-        Files.write(imagePath, file.getBytes());
-        String imageUrl = "http://localhost:8080/api/v1.0/images/" + filename;
+        String imageUrl = addImageFile(file, uploadPath);
 
         newCategory.setImgUrl(imageUrl);
         newCategory = categoryRepository.save(newCategory);

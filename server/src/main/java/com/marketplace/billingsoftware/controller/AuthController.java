@@ -5,6 +5,10 @@ import com.marketplace.billingsoftware.io.AuthResponse;
 import com.marketplace.billingsoftware.service.UserService;
 import com.marketplace.billingsoftware.service.impl.AppUserDetailsService;
 import com.marketplace.billingsoftware.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +26,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Authentication API")
 public class AuthController {
 
     private final PasswordEncoder passwordEncoder;
@@ -34,8 +39,9 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
 
+    @Operation(summary = "Login to the application", description = "Login to the application with email and password to receive a JWT token.")
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) throws Exception {
+    public AuthResponse login(@Valid @RequestBody AuthRequest request) throws Exception {
         authenticate(request.getEmail(), request.getPassword());
         final UserDetails userDetails = appUserDetailsService.loadUserByUsername(request.getEmail());
         final String jwtToken = jwtUtil.generateToken(userDetails);
