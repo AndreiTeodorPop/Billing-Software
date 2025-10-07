@@ -22,8 +22,9 @@ public class ImageController {
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
-        Path path = Paths.get(uploadPath + File.separator + filename);
-        Resource resource = new UrlResource(path.toUri());
+        Path projectRoot = Paths.get(System.getProperty("user.dir"));
+        Path targetDir = projectRoot.resolve("server").resolve(uploadPath + File.separator + filename).normalize();
+        Resource resource = new UrlResource(targetDir.toUri());
 
         if (!resource.exists()) {
             return ResponseEntity.notFound().build();

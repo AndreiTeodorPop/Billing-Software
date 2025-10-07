@@ -16,11 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,11 +39,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemResponse add(ItemRequest request, MultipartFile file) throws IOException {
         ItemEntity newItem = convertToEntity(request);
 
-        String filename = file.getOriginalFilename();
-        Path imagePath = Paths.get(uploadPath + File.separator + filename);
-        Files.createDirectories(imagePath.getParent());
-        Files.write(imagePath, file.getBytes());
-        String imageUrl = "http://localhost:8080/api/v1.0/images/" + filename;
+        String imageUrl = imageUtil.addImageFile(file, uploadPath);
 
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(request.getCategoryId()).orElseThrow(() -> new RuntimeException("Category not found: " + request.getCategoryId()));
 

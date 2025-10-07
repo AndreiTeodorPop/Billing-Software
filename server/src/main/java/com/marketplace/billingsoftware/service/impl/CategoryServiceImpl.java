@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,7 +59,9 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(String categoryId) {
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId));
-        imageUtil.deleteImageFile(existingCategory.getImgUrl(), uploadPath);
+        Path projectRoot = Paths.get(System.getProperty("user.dir"));
+        Path targetDir = projectRoot.resolve("server").resolve(uploadPath).normalize();
+        imageUtil.deleteImageFile(existingCategory.getImgUrl(), targetDir.toString());
         categoryRepository.delete(existingCategory);
     }
 

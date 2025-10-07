@@ -30,7 +30,7 @@ public class ImageUtil {
 
     private static final String HTTP = "http://";
 
-    public static final String LOCAL_HOST = "localhost:";
+    public static final String LOCAL_HOST = "localhost";
 
     public String addImageFile(MultipartFile file, String uploadPath) throws IOException {
         if (file == null || file.isEmpty()) {
@@ -58,7 +58,9 @@ public class ImageUtil {
     public boolean deleteImageFile(String imageUrl, String uploadPath) {
         try {
             String filename = Paths.get(new URI(imageUrl).getPath()).getFileName().toString();
-            Path filePath = Paths.get(uploadPath + File.separator + filename);
+
+            Path projectRoot = Paths.get(System.getProperty("user.dir"));
+            Path filePath = projectRoot.resolve("server").resolve(uploadPath + File.separator + filename).normalize();
 
             return Files.deleteIfExists(filePath);
         } catch (IOException e) {
