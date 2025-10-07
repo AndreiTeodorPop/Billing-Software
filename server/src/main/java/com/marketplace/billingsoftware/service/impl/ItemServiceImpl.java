@@ -7,7 +7,9 @@ import com.marketplace.billingsoftware.io.ItemResponse;
 import com.marketplace.billingsoftware.repository.CategoryRepository;
 import com.marketplace.billingsoftware.repository.ItemRepository;
 import com.marketplace.billingsoftware.service.ItemService;
+import com.marketplace.billingsoftware.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,14 +25,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.marketplace.billingsoftware.util.ImageUtil.deleteImageFile;
-
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
     @Value("${upload.path}")
     private String uploadPath;
+
+    @Autowired
+    ImageUtil imageUtil;
 
     private final CategoryRepository categoryRepository;
 
@@ -66,8 +69,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void deleteItem(String itemId) {
         ItemEntity existingItem = itemRepository.findByItemId(itemId).orElseThrow(() -> new RuntimeException("Item not found: " + itemId));
-        boolean isFileDeleted = deleteImageFile(existingItem.getImgUrl(), uploadPath);
-        if(isFileDeleted) {
+        boolean isFileDeleted = imageUtil.deleteImageFile(existingItem.getImgUrl(), uploadPath);
+        if (isFileDeleted) {
             itemRepository.delete(existingItem);
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to delete the image");

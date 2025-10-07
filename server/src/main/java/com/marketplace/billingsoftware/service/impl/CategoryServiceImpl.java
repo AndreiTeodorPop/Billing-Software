@@ -7,7 +7,9 @@ import com.marketplace.billingsoftware.io.CategoryResponse;
 import com.marketplace.billingsoftware.repository.CategoryRepository;
 import com.marketplace.billingsoftware.repository.ItemRepository;
 import com.marketplace.billingsoftware.service.CategoryService;
+import com.marketplace.billingsoftware.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,12 +19,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.marketplace.billingsoftware.util.ImageUtil.addImageFile;
-import static com.marketplace.billingsoftware.util.ImageUtil.deleteImageFile;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
+
+    @Autowired
+    ImageUtil imageUtil;
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -35,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse add(CategoryRequest request, MultipartFile file) throws IOException {
         CategoryEntity newCategory = convertToEntity(request);
 
-        String imageUrl = addImageFile(file, uploadPath);
+        String imageUrl = imageUtil.addImageFile(file, uploadPath);
 
         newCategory.setImgUrl(imageUrl);
         newCategory = categoryRepository.save(newCategory);
@@ -54,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(String categoryId) {
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId));
-        deleteImageFile(existingCategory.getImgUrl(), uploadPath);
+        imageUtil.deleteImageFile(existingCategory.getImgUrl(), uploadPath);
         categoryRepository.delete(existingCategory);
     }
 
